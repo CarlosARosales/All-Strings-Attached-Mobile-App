@@ -1,0 +1,23 @@
+import { USER_STATE_CHANGE, USER_INSTRUMENTS_STATE_CHANGE } from "../constants";
+
+const initialState = {
+  currentUser: null,
+  instruments: [],
+};
+
+export const user = (state = initialState, action) => {
+  switch (action.type) {
+    case USER_STATE_CHANGE:
+      return {
+        ...state,
+        currentUser: action.currentUser,
+      };
+    case USER_INSTRUMENTS_STATE_CHANGE:
+      return {
+        ...state,
+        instruments: action.instruments,
+      };
+    default:
+      return state;
+  }
+};

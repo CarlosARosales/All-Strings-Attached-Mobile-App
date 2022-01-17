@@ -1,0 +1,15 @@
+com/crosalesmoran/loggerapp/BuildConfig.java
+ com.crosalesmoran.loggerapp.BuildConfig
+com/crosalesmoran/loggerapp/MainActivity.java
+ com.crosalesmoran.loggerapp.MainActivity
+ com.crosalesmoran.loggerapp.MainActivity$1
+com/crosalesmoran/loggerapp/ReactNativeFlipper.java
+ com.crosalesmoran.loggerapp.ReactNativeFlipper
+ com.crosalesmoran.loggerapp.ReactNativeFlipper$1
+ com.crosalesmoran.loggerapp.ReactNativeFlipper$2
+ com.crosalesmoran.loggerapp.ReactNativeFlipper$2$1
+com/crosalesmoran/loggerapp/MainApplication.java
+ com.crosalesmoran.loggerapp.MainApplication
+ com.crosalesmoran.loggerapp.MainApplication$1
+com/facebook/react/PackageList.java
+ com.facebook.react.PackageList

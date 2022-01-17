@@ -1,0 +1,1 @@
+{"ast":null,"code":"export var PHIL = require(\"./Phil.PNG\");","map":{"version":3,"sources":["D:/Senior Design App/logger-app/assets/index.js"],"names":["PHIL","require"],"mappings":"AAAA,OAAO,IAAMA,IAAI,GAAGC,OAAO,cAApB","sourcesContent":["export const PHIL = require(\"./Phil.PNG\");\r\n"]},"metadata":{},"sourceType":"module"}

@@ -17,13 +17,15 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import Instruments from "./Instruments";
 import { BleManager } from "react-native-ble-plx";
+import BluetoothScanner from "./BlueToothScanner";
+import Metronome from "./Metronome";
 
 import {
   fetchUser,
   fetchUserInstruments,
+  fetchUserPractice,
 } from "../redux/actions/actions/index";
 import { render } from "react-dom";
-import BluetoothScanner from "./BlueToothScanner";
 
 const Tab = createBottomTabNavigator();
 
@@ -41,7 +43,7 @@ function MyTabs() {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="devices" color={color} size={size} />
+            <MaterialCommunityIcons name="violin" color={color} size={size} />
           ),
         }}
         component={HomeScreen}
@@ -65,6 +67,20 @@ function MyTabs() {
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
+              name="metronome"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+        name="Metronome"
+        component={Metronome}
+      />
+      <Tab.Screen
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
               name="radiobox-marked"
               color={color}
               size={size}
@@ -75,7 +91,7 @@ function MyTabs() {
         component={Record}
       />
       <Tab.Screen
-        name="Device Manager"
+        name="BLE Scanner"
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
@@ -84,6 +100,7 @@ function MyTabs() {
         }}
         component={BluetoothScanner}
       />
+
       <Tab.Screen
         options={{
           headerShown: false,
@@ -121,10 +138,6 @@ function NavigationEnabler(props) {
 }
 
 class HomeScreen extends Component {
-  constructor() {
-    super();
-  }
-
   render() {
     const { navigation } = this.props;
 
@@ -142,6 +155,7 @@ class HomeScreen extends Component {
           </TouchableOpacity>
         </View>
         <Text style={styles.buttonText}>Hello {auth.currentUser?.email}</Text>
+
         <Instruments></Instruments>
       </View>
     );
@@ -152,6 +166,7 @@ export class Home extends Component {
   componentDidMount() {
     this.props.fetchUser();
     this.props.fetchUserInstruments();
+    this.props.fetchUserPractice();
   }
 
   render() {
@@ -164,6 +179,7 @@ export class Home extends Component {
 const mapStateToProps = (store) => ({
   currentUser: store.userState.currentUser,
   instruments: store.userState.instruments,
+  rawTimeStamp: store.userState.rawTimeStamp,
 });
 
 const mapDispatchProps = (dispatch) =>
@@ -171,6 +187,7 @@ const mapDispatchProps = (dispatch) =>
     {
       fetchUser,
       fetchUserInstruments,
+      fetchUserPractice,
     },
     dispatch
   );

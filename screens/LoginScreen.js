@@ -14,6 +14,8 @@ import {
 
 import { auth } from "../firebase";
 import firebase from "firebase/app";
+import { db } from "../firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
@@ -36,6 +38,7 @@ const LoginScreen = () => {
       .createUserWithEmailAndPassword(email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
+
         firebase
           .firestore()
           .collection("users")
@@ -43,6 +46,7 @@ const LoginScreen = () => {
           .set({
             email,
           });
+
         console.log("Registered with:", user.uid);
       })
       .catch((error) => alert(error.message));

@@ -1,20 +1,65 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   FlatList,
   TouchableOpacity,
+  Image,
+  Alert,
 } from "react-native";
 import styles from "./Styles";
 import firestore from "@react-native-firebase/firestore";
+import firebase from "firebase/app";
+require("firebase/firestore");
+require("firebase/firebase-storage");
 import { List } from "react-native-paper";
 import { connect } from "react-redux";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 function Instruments(props) {
-  const { currentUser, instruments } = props;
+  const { currentUser, instruments, rawTimeStamp } = props;
+  const [showBox, setShowBox] = useState(true);
 
-  console.log(currentUser, instruments);
+  const deleteInstrument = (item) => {
+    firebase
+      .firestore()
+      .collection("instruments")
+      .doc(firebase.auth().currentUser.uid)
+      .collection("userInstruments")
+      .doc(item)
+      .delete()
+      .then(function () {
+        console.log("item deleted");
+      });
+  };
+
+  const showConfirmDialog = (item) => {
+    console.log("hello");
+    console.log(item);
+
+    return Alert.alert(
+      "Are your sure?",
+      "Are you sure you want to remove this instrument?",
+      [
+        // The "Yes" button
+        {
+          text: "Yes",
+          onPress: () => {
+            setShowBox(false);
+            deleteInstrument(item);
+          },
+        },
+        // The "No" button
+        // Does nothing but dismiss the dialog when tapped
+        {
+          text: "No",
+        },
+      ]
+    );
+  };
+
+  console.log(currentUser, instruments, rawTimeStamp);
   return (
     <View style={instrumentStyles.container}>
       <View style={instrumentStyles.containerGallery}>
@@ -30,17 +75,17 @@ function Instruments(props) {
                   </Text>
                 </View>
                 <View style={instrumentStyles.deleteButtonContainer}>
-                  <TouchableOpacity
-                    onPress={() => null}
-                    style={instrumentStyles.deleteInstrumentButton}
-                  >
-                    <Text style={instrumentStyles.buttonText}>
-                      - Delete Instrument
-                    </Text>
+                  <TouchableOpacity onPress={() => showConfirmDialog(item.id)}>
+                    <MaterialCommunityIcons
+                      name="delete"
+                      color={"white"}
+                      size={32}
+                    />
                   </TouchableOpacity>
                 </View>
               </View>
 
+              <View style={instrumentStyles.imageContainer}></View>
               <Text style={instrumentStyles.otherText}>
                 Model: {item.instrumentModel}
               </Text>
@@ -61,7 +106,7 @@ const mapStateToProps = (store) => ({
 const instrumentStyles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 40,
+    marginTop: "5%",
   },
   buttonText: {
     color: "#EBEBF5",
@@ -82,24 +127,28 @@ const instrumentStyles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: "#2C2C2E",
     padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
+    marginVertical: "3%",
+    marginHorizontal: "5%",
   },
   deleteInstrumentContainer: {
     flexDirection: "row",
-    marginTop: "2.5%",
   },
   deleteButtonContainer: {
     flex: 1,
     alignItems: "flex-end",
+    justifyContent: "center",
   },
   deleteInstrumentButton: {
-    backgroundColor: "#0782F9",
-    width: 150,
-    padding: 5,
+    backgroundColor: "red",
+    width: "60%",
+    padding: "3%",
     borderRadius: 15,
     alignItems: "center",
-    elevation: 5,
+  },
+  imageContainer: {
+    width: "100%",
+
+    backgroundColor: "black",
   },
 });
 

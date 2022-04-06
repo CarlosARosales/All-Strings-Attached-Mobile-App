@@ -1,8 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, Button, PermissionsAndroid } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  Button,
+  PermissionsAndroid,
+  DeviceEventEmitter,
+} from "react-native";
 import { BleManager } from "react-native-ble-plx";
+import base64 from "react-native-base64";
+import firebase from "firebase";
+require("firebase/firestore");
+require("firebase/firebase-storage");
 
 export const manager = new BleManager();
+
+const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+const MESSAGE_UUID = "c84b5feb-a12f-45bb-a3ff-a6adce24f69e";
+const MESSAGE_UUID2 = "2eec8c1a-4bc6-4c3d-ae54-4c498640b4f2";
+const MESSAGE_UUID3 = "b50dd1fb-fec7-46b0-8b3f-c34265cd01f1";
+
+//const BOX_UUID = "f27b53ad-c63d-49a0-8c0f-9f297e6cc520";
 
 const requestPermission = async () => {
   const granted = await PermissionsAndroid.request(
@@ -27,6 +45,11 @@ const BluetoothScanner = () => {
   const [logCount, setLogCount] = useState(0);
   const [scannedDevices, setScannedDevices] = useState({});
   const [deviceCount, setDeviceCount] = useState(0);
+  var startDate = [];
+  const [dateData, setDateData] = useState({});
+
+  //const [message, setMessage] = useState("Nothing Yet");
+  //const [boxvalue, setBoxValue] = useState(false);
 
   useEffect(() => {
     manager.onStateChange((state) => {
@@ -101,8 +124,93 @@ const BluetoothScanner = () => {
                   return;
                 }
                 // found a bluetooth device
-                if (device) {
+                if (device.name === "Strings attached") {
                   console.log(`${device.name} (${device.id})}`);
+
+                  // Stop scanning as it's not necessary if you are scanning for one device.
+
+                  manager.stopDeviceScan();
+
+                  device
+                    .connect()
+                    .then((device) => {
+                      console.log("device connected");
+                      console.log(device.name);
+                      return device.discoverAllServicesAndCharacteristics();
+                    })
+
+                    .then((device) => {
+                      // Do work on device with services and characteristics
+                      console.log("Services and characteristics discovered");
+                      /*
+                      device
+                        .writeCharacteristicWithResponseForService(
+                          SERVICE_UUID,
+                          MESSAGE_UUID,
+                          "MDIvMDkvMjAyMg=="
+                        )
+                        .then((characteristic) => {
+                          console.log("characteristic:"); // < ---- never gets called
+                          console.log(characteristic);
+                        })
+                        .catch((error) => {
+                          console.log("error");
+                          console.log(error);
+                        });*/
+
+                      var startTime;
+                      var endTime;
+                      var counter = 1;
+
+                      device.monitorCharacteristicForService(
+                        SERVICE_UUID,
+                        MESSAGE_UUID,
+
+                        (error, characteristic) => {
+                          if (characteristic?.value != null) {
+                            if (counter % 2 == 0) {
+                              endTime = base64.decode(characteristic?.value);
+                              firebase
+                                .firestore()
+                                .collection("rawTimeStamp")
+                                .doc(firebase.auth().currentUser.uid)
+                                .collection("rawTime")
+                                .add({
+                                  startTime: startTime,
+                                  endTime: endTime,
+                                })
+                                .then(function () {
+                                  console.log("Saved to DB");
+                                });
+                            } else {
+                              startTime = base64.decode(characteristic?.value);
+                            }
+
+                            counter += 1;
+
+                            console.log(
+                              "Message update received: ",
+                              base64.decode(characteristic?.value)
+                            );
+                          }
+                        },
+                        "messagetransaction"
+                      );
+
+                      return device
+                        .readCharacteristicForService(
+                          SERVICE_UUID,
+                          MESSAGE_UUID
+                        )
+                        .then((valenc) => {
+                          console.log("starting");
+                          //setMessage(base64.decode(valenc?.value));
+
+                          console.log(base64.decode(valenc?.value));
+                          console.log("done");
+                        });
+                    });
+
                   const newScannedDevices = scannedDevices;
                   newScannedDevices[device.id] = device;
                   await setDeviceCount(Object.keys(newScannedDevices).length);

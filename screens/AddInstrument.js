@@ -53,7 +53,7 @@ export default function AddInstrument({ navigation }) {
                 <View style={styles.inputContainer}>
                   <View style={styles.inputTextBox}>
                     <TextInput
-                      style={styles.primaryColor}
+                      style={styles.inputBox}
                       placeholder="Instrument "
                       placeholderTextColor="white"
                       onChangeText={(instrumentName) =>
@@ -63,23 +63,33 @@ export default function AddInstrument({ navigation }) {
                   </View>
                 </View>
               </View>
+              <View style={styles.instrumentInputContainter}>
+                <Text style={styles.secondaryText}>Instrument Model</Text>
+                <View style={styles.inputContainer}>
+                  <View style={styles.inputTextBox}>
+                    <TextInput
+                      placeholder="Model"
+                      placeholderTextColor="white"
+                      onChangeText={(instrumentModel) =>
+                        setInstrumentModel(instrumentModel)
+                      }
+                    ></TextInput>
+                  </View>
+                </View>
+              </View>
 
-              <View></View>
-
-              <TextInput
-                style={styles.inputText}
-                placeholder="Instrument Model"
-                placeholderTextColor="rgba(235, 235, 245, 0.6)"
-                onChangeText={(instrumentModel) =>
-                  setInstrumentModel(instrumentModel)
-                }
-              ></TextInput>
-              <TextInput
-                style={styles.inputText}
-                placeholder="Year"
-                placeholderTextColor="rgba(235, 235, 245, 0.6)"
-                onChangeText={(year) => setYear(year)}
-              ></TextInput>
+              <View style={styles.instrumentInputContainter}>
+                <Text style={styles.secondaryText}>Instrument Year</Text>
+                <View style={styles.inputContainer}>
+                  <View style={styles.inputTextBox}>
+                    <TextInput
+                      placeholder="Year"
+                      placeholderTextColor="white"
+                      onChangeText={(year) => setYear(year)}
+                    ></TextInput>
+                  </View>
+                </View>
+              </View>
             </View>
 
             <TouchableOpacity

@@ -1,8 +1,15 @@
-import { USER_STATE_CHANGE, USER_INSTRUMENTS_STATE_CHANGE } from "../constants";
+import {
+  USER_STATE_CHANGE,
+  USER_INSTRUMENTS_STATE_CHANGE,
+  USER_RAWTIMESTAMP_STATE_CHANGE,
+  USER_RECORDINGS_STATE_CHANGE,
+} from "../constants";
 
 const initialState = {
   currentUser: null,
   instruments: [],
+  rawTimeStamp: [],
+  recordings: [],
 };
 
 export const user = (state = initialState, action) => {
@@ -16,6 +23,16 @@ export const user = (state = initialState, action) => {
       return {
         ...state,
         instruments: action.instruments,
+      };
+    case USER_RAWTIMESTAMP_STATE_CHANGE:
+      return {
+        ...state,
+        rawTimeStamp: action.rawTimeStamp,
+      };
+    case USER_RECORDINGS_STATE_CHANGE:
+      return {
+        ...state,
+        recordings: action.recordings,
       };
     default:
       return state;

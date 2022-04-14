@@ -2,6 +2,8 @@ import firebase from "firebase";
 import {
   USER_INSTRUMENTS_STATE_CHANGE,
   USER_STATE_CHANGE,
+  USER_RAWTIMESTAMP_STATE_CHANGE,
+  USER_RECORDINGS_STATE_CHANGE,
 } from "../constants/index";
 
 export function fetchUser() {
@@ -37,6 +39,47 @@ export function fetchUserInstruments() {
         });
         console.log(instruments);
         dispatch({ type: USER_INSTRUMENTS_STATE_CHANGE, instruments });
+      });
+  };
+}
+
+export function fetchUserPractice() {
+  return (dispatch) => {
+    firebase
+      .firestore()
+      .collection("rawTimeStamp")
+      .doc(firebase.auth().currentUser.uid)
+      .collection("rawTime")
+      .get()
+      .then((snapshot) => {
+        let rawTimeStamp = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          const id = doc.id;
+          return { id, ...data };
+        });
+        console.log(rawTimeStamp);
+        dispatch({ type: USER_RAWTIMESTAMP_STATE_CHANGE, rawTimeStamp });
+      });
+  };
+}
+
+export function fetchUserRecordings() {
+  return (dispatch) => {
+    firebase
+      .firestore()
+      .collection("audioFiles")
+      .doc(firebase.auth().currentUser.uid)
+      .collection("userAudio")
+      .orderBy("creation", "asc")
+      .get()
+      .then((snapshot) => {
+        let recordings = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          const id = doc.id;
+          return { id, ...data };
+        });
+        console.log(recordings);
+        dispatch({ type: USER_RECORDINGS_STATE_CHANGE, recordings });
       });
   };
 }

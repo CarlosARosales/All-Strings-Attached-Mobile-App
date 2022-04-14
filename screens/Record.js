@@ -6,6 +6,7 @@ import {
   View,
   Button,
   PermissionsAndroid,
+  FlatList,
 } from "react-native";
 import { useNavigation } from "@react-navigation/core";
 import { NavigationContainer } from "@react-navigation/native";
@@ -13,13 +14,13 @@ import { createMaterialBottomTabNavigator } from "@react-navigation/material-bot
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import styles from "./Styles";
 import { Audio } from "expo-av";
+import { connect } from "react-redux";
 
 import firebase from "firebase";
+import { getStorage, ref, listAll } from "firebase/firebase-storage";
 
 require("firebase/firestore");
 require("firebase/firebase-storage");
-
-//const reference = storage().ref('black-t-shirt-sm.png');
 
 const requestAudioPermission = async () => {
   console.log("permissiooonnss");
@@ -37,8 +38,27 @@ const requestAudioPermission = async () => {
   return granted === PermissionsAndroid.RESULTS.GRANTED;
 };
 
-export default function Record() {
+function Record(props) {
   const [recording, setRecording] = React.useState();
+  const { currentUser, recordings } = props;
+
+  console.log(currentUser, recordings);
+  var reference = `recording/${firebase.auth().currentUser.uid}`;
+
+  const sound = new Audio.Sound();
+
+  async function startPlaying(source) {
+    const soundObject = new Audio.Sound();
+
+    console.log(source);
+    try {
+      const { sound } = await Audio.Sound.createAsync({ uri: source });
+
+      await sound.playAsync();
+    } catch (e) {
+      console.warn(e);
+    }
+  }
 
   async function startRecording() {
     try {
@@ -71,35 +91,84 @@ export default function Record() {
     setRecording(undefined);
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
+    console.log("asdasdasdasd");
+    console.log(uri);
 
-    const childPath = `recording/${
-      firebase.auth().currentUser.uid
-    }/${Math.random().toString(36)}`;
-
-    const task = firebase
-      .storage()
-      .ref()
-      .child(childPath)
-      .put(uri, { contentType: `audio/.m4a` });
-
-    const taskProgress = (snapshot) => {
-      console.log(`transferred: ${snapshot.bytesTransferred}`);
-    };
-
-    const taskCompleted = (snaphot) => {
-      task.snapshot.ref.getDownloadURL().then((snapshot) => {
-        console.log(snapshot);
+    try {
+      const blob = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = () => {
+          try {
+            resolve(xhr.response);
+          } catch (error) {
+            console.log("error:", error);
+          }
+        };
+        xhr.onerror = (e) => {
+          console.log(e);
+          reject(new TypeError("Network request failed"));
+        };
+        xhr.responseType = "blob";
+        xhr.open("GET", uri, true);
+        xhr.send(null);
       });
-    };
+      if (blob != null) {
+        const uriParts = uri.split(".");
+        const fileType = uriParts[uriParts.length - 1];
 
-    const taskError = (snapshot) => {
-      console.log(snapshot);
-    };
+        const task = firebase
+          .storage()
+          .ref()
+          .child(
+            `recording/${
+              firebase.auth().currentUser.uid
+            }/${Math.random().toString(36)}.${fileType}`
+          )
+          .put(blob, {
+            contentType: `audio/${fileType}`,
+          });
+        const taskProgress = (snapshot) => {
+          console.log(`transferred: ${snapshot.bytesTransferred}`);
+        };
 
-    task.on("state_changed", taskProgress, taskError, taskCompleted);
+        const taskCompleted = (snaphot) => {
+          task.snapshot.ref.getDownloadURL().then((snapshot) => {
+            saveAudioData(snapshot);
+            console.log(snapshot);
+          });
+        };
+
+        const taskError = (snapshot) => {
+          console.log(snapshot);
+        };
+
+        task.on("state_changed", taskProgress, taskError, taskCompleted);
+      } else {
+        console.log("erroor with blob");
+      }
+    } catch (error) {
+      console.log("error:", error);
+    }
+
+    // task.on("state_changed", taskProgress, taskError, taskCompleted);
 
     console.log("Recording stopped and stored at", uri);
   }
+
+  const saveAudioData = (downloadURL) => {
+    firebase
+      .firestore()
+      .collection("audioFiles")
+      .doc(firebase.auth().currentUser.uid)
+      .collection("userAudio")
+      .add({
+        downloadURL,
+        creation: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      .then(function () {
+        console.log("Success!");
+      });
+  };
 
   return (
     <>
@@ -120,8 +189,39 @@ export default function Record() {
                   style={recordStyle.buttonStyle}
                   onPress={recording ? stopRecording : startRecording}
                 >
-                  <Text>{recording ? "Stop Recording" : "Record"}</Text>
+                  <MaterialCommunityIcons
+                    name="radiobox-marked"
+                    color="white"
+                    size={200}
+                  />
                 </TouchableOpacity>
+              </View>
+              <View>
+                <View>
+                  <FlatList
+                    horizontal={false}
+                    data={recordings}
+                    renderItem={({ item }) => (
+                      <View>
+                        <View style={recordStyle.playButtonContainer}>
+                          <Text style={recordStyle.otherText}>Date: </Text>
+                          <View style={recordStyle.playerContainer}>
+                            <TouchableOpacity
+                              style={recordStyle.playButtonStyle}
+                              onPress={() => startPlaying(item.downloadURL)}
+                            >
+                              <MaterialCommunityIcons
+                                name="play"
+                                color={"white"}
+                                size={32}
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      </View>
+                    )}
+                  ></FlatList>
+                </View>
               </View>
             </View>
           </View>
@@ -130,6 +230,15 @@ export default function Record() {
     </>
   );
 }
+
+const mapStateToProps = (store) => ({
+  currentUser: store.userState.currentUser,
+  instruments: store.userState.instruments,
+  rawTimeStamp: store.userState.rawTimeStamp,
+  recordings: store.userState.recordings,
+});
+
+export default connect(mapStateToProps, null)(Record);
 
 const recordStyle = StyleSheet.create({
   container: {
@@ -164,15 +273,26 @@ const recordStyle = StyleSheet.create({
   },
   buttonStyle: {
     alignItems: "center",
-    backgroundColor: "white",
-    borderRadius: 100,
+
     width: "100%",
-    padding: 10,
+  },
+  playButtonContainer: {
+    flexDirection: "row",
+
+    padding: 5,
+  },
+  playerContainer: {
+    flex: 1,
+    alignItems: "flex-end",
+  },
+  playButtonStyle: {
+    alignItems: "center",
+
+    width: "20%",
   },
   buttonContainer: {
     alignItems: "center",
     padding: 5,
     borderRadius: 100,
-    elevation: 5,
   },
 });

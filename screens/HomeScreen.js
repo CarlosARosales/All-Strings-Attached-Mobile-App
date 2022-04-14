@@ -19,11 +19,13 @@ import Instruments from "./Instruments";
 import { BleManager } from "react-native-ble-plx";
 import BluetoothScanner from "./BlueToothScanner";
 import Metronome from "./Metronome";
+import TunerApp from "./TunerApp";
 
 import {
   fetchUser,
   fetchUserInstruments,
   fetchUserPractice,
+  fetchUserRecordings,
 } from "../redux/actions/actions/index";
 import { render } from "react-dom";
 
@@ -75,6 +77,20 @@ function MyTabs() {
         }}
         name="Metronome"
         component={Metronome}
+      />
+      <Tab.Screen
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
+              name="metronome"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+        name="Tuner"
+        component={TunerApp}
       />
       <Tab.Screen
         options={{
@@ -167,6 +183,7 @@ export class Home extends Component {
     this.props.fetchUser();
     this.props.fetchUserInstruments();
     this.props.fetchUserPractice();
+    this.props.fetchUserRecordings();
   }
 
   render() {
@@ -188,6 +205,7 @@ const mapDispatchProps = (dispatch) =>
       fetchUser,
       fetchUserInstruments,
       fetchUserPractice,
+      fetchUserRecordings,
     },
     dispatch
   );

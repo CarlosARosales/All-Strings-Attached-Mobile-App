@@ -7,13 +7,14 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  KeyboardAvoidingView,
 } from "react-native";
 import styles from "./Styles";
 import firestore from "@react-native-firebase/firestore";
 import firebase from "firebase/app";
 require("firebase/firestore");
 require("firebase/firebase-storage");
-import { List } from "react-native-paper";
+import { List, TextInput } from "react-native-paper";
 import { connect } from "react-redux";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -69,10 +70,12 @@ function Instruments(props) {
           renderItem={({ item }) => (
             <View style={instrumentStyles.instrumentCard}>
               <View style={instrumentStyles.deleteInstrumentContainer}>
-                <View>
-                  <Text style={instrumentStyles.title}>
-                    {item.instrumentName}
-                  </Text>
+                <View style={instrumentStyles.titleContainer}>
+                  <TextInput
+                    style={instrumentStyles.title}
+                    placeholder={item.instrumentName}
+                    placeholderTextColor="white"
+                  ></TextInput>
                 </View>
                 <View style={instrumentStyles.deleteButtonContainer}>
                   <TouchableOpacity onPress={() => showConfirmDialog(item.id)}>
@@ -116,9 +119,11 @@ const instrumentStyles = StyleSheet.create({
     marginTop: "2%",
   },
   title: {
+    backgroundColor: "#2C2C2E",
     color: "white",
     fontWeight: "bold",
     fontSize: 30,
+    borderWidth: 0,
   },
   containerGallery: {
     flex: 1,
@@ -149,6 +154,9 @@ const instrumentStyles = StyleSheet.create({
     width: "100%",
 
     backgroundColor: "black",
+  },
+  titleContainer: {
+    width: "50%",
   },
 });
 

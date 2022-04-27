@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -75,6 +75,7 @@ function Instruments(props) {
                     style={instrumentStyles.title}
                     placeholder={item.instrumentName}
                     placeholderTextColor="white"
+                    underlineColorAndroid="transparent"
                   ></TextInput>
                 </View>
                 <View style={instrumentStyles.deleteButtonContainer}>
@@ -93,6 +94,15 @@ function Instruments(props) {
                 Model: {item.instrumentModel}
               </Text>
               <Text style={instrumentStyles.otherText}>Year: {item.year}</Text>
+              <Text style={instrumentStyles.otherText}>
+                Size: {item.instrumentSize}
+              </Text>
+              <Text style={instrumentStyles.otherText}>
+                String Brand: {item.stringBrand}
+              </Text>
+              <Text style={instrumentStyles.otherText}>
+                String Brand Core: {item.stringBrandCore}
+              </Text>
             </View>
           )}
         />
@@ -119,11 +129,12 @@ const instrumentStyles = StyleSheet.create({
     marginTop: "2%",
   },
   title: {
-    backgroundColor: "#2C2C2E",
+    backgroundColor: "transparent",
     color: "white",
     fontWeight: "bold",
     fontSize: 30,
     borderWidth: 0,
+    borderBottomColor: "transparent",
   },
   containerGallery: {
     flex: 1,

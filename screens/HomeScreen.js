@@ -107,11 +107,15 @@ function MyTabs() {
         component={Record}
       />
       <Tab.Screen
-        name="BLE Scanner"
+        name="Bluetooth"
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="devices" color={color} size={size} />
+            <MaterialCommunityIcons
+              name="bluetooth-settings"
+              color={color}
+              size={size}
+            />
           ),
         }}
         component={BluetoothScanner}

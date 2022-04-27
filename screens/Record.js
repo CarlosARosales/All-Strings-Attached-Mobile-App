@@ -15,15 +15,13 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import styles from "./Styles";
 import { Audio } from "expo-av";
 import { connect } from "react-redux";
-
 import firebase from "firebase";
 import { getStorage, ref, listAll } from "firebase/firebase-storage";
-
 require("firebase/firestore");
 require("firebase/firebase-storage");
 
+//Request for required audio permissions
 const requestAudioPermission = async () => {
-  console.log("permissiooonnss");
   const granted = await PermissionsAndroid.request(
     PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
     {
@@ -34,10 +32,10 @@ const requestAudioPermission = async () => {
       buttonPositive: "OK",
     }
   );
-
   return granted === PermissionsAndroid.RESULTS.GRANTED;
 };
 
+//Function used to record user audio
 function Record(props) {
   const [recording, setRecording] = React.useState();
   const { currentUser, recordings } = props;
@@ -73,7 +71,7 @@ function Record(props) {
       });
 
       console.log("Starting recording..");
-      const recording = new Audio.Recording();
+      let recording = new Audio.Recording();
 
       await recording.prepareToRecordAsync(
         Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
@@ -91,7 +89,7 @@ function Record(props) {
     setRecording(undefined);
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
-    console.log("asdasdasdasd");
+
     console.log(uri);
 
     try {
@@ -112,10 +110,12 @@ function Record(props) {
         xhr.open("GET", uri, true);
         xhr.send(null);
       });
+
       if (blob != null) {
         const uriParts = uri.split(".");
         const fileType = uriParts[uriParts.length - 1];
 
+        //Save audio recording to firebase storage
         const task = firebase
           .storage()
           .ref()
@@ -130,6 +130,9 @@ function Record(props) {
         const taskProgress = (snapshot) => {
           console.log(`transferred: ${snapshot.bytesTransferred}`);
         };
+
+        //Once the user has recorded audio, use saveAudioData to save firebase link to audio source
+        // to firebase alongside information about the recording
 
         const taskCompleted = (snaphot) => {
           task.snapshot.ref.getDownloadURL().then((snapshot) => {
@@ -149,8 +152,6 @@ function Record(props) {
     } catch (error) {
       console.log("error:", error);
     }
-
-    // task.on("state_changed", taskProgress, taskError, taskCompleted);
 
     console.log("Recording stopped and stored at", uri);
   }
@@ -203,8 +204,15 @@ function Record(props) {
                     data={recordings}
                     renderItem={({ item }) => (
                       <View>
+                        <View>
+                          <Text style={recordStyle.titleSessions}>
+                            Session 1
+                          </Text>
+                        </View>
                         <View style={recordStyle.playButtonContainer}>
-                          <Text style={recordStyle.otherText}>Date: </Text>
+                          <Text style={recordStyle.otherText}>
+                            {item.creation.toDate().toString()}
+                          </Text>
                           <View style={recordStyle.playerContainer}>
                             <TouchableOpacity
                               style={recordStyle.playButtonStyle}
@@ -218,6 +226,7 @@ function Record(props) {
                             </TouchableOpacity>
                           </View>
                         </View>
+                        <View style={recordStyle.bottomLine}></View>
                       </View>
                     )}
                   ></FlatList>
@@ -244,8 +253,19 @@ const recordStyle = StyleSheet.create({
   container: {
     flex: 1,
   },
+  titleSessions: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
   buttonText: {
     color: "#EBEBF5",
+  },
+  bottomLine: {
+    borderBottomColor: "rgba(235, 235, 245, 0.6)",
+    borderBottomWidth: 1,
+    marginTop: "5%",
+    marginBottom: "5%",
   },
   otherText: {
     color: "rgba(235, 235, 245, 0.6)",
@@ -278,8 +298,6 @@ const recordStyle = StyleSheet.create({
   },
   playButtonContainer: {
     flexDirection: "row",
-
-    padding: 5,
   },
   playerContainer: {
     flex: 1,

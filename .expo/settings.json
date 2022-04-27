@@ -1,10 +1,10 @@
 {
   "hostType": "localhost",
   "lanType": "ip",
-  "dev": true,
-  "minify": false,
+  "dev": false,
+  "minify": true,
   "urlRandomness": "ud-qk5",
   "https": false,
-  "scheme": null,
-  "devClient": false
+  "scheme": "com.crosalesmoran.loggerapp",
+  "devClient": true
 }

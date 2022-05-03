@@ -211,7 +211,7 @@ function Record(props) {
                         </View>
                         <View style={recordStyle.playButtonContainer}>
                           <Text style={recordStyle.otherText}>
-                            {item.creation.toDate().toString()}
+                            {item.creation.toDate().toString().substring(0, 24)}
                           </Text>
                           <View style={recordStyle.playerContainer}>
                             <TouchableOpacity

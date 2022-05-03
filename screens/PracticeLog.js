@@ -29,15 +29,7 @@ function PracticeLog(props) {
   const screenWidth = Dimensions.get("window").width;
 
   const data = {
-    labels: [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ],
+    labels: ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"],
     datasets: [
       {
         data: [20, 45, 28, 80, 99, 100, 43],
@@ -69,8 +61,8 @@ function PracticeLog(props) {
             <View style={instrumentStyles.barGraphContainer}>
               <BarChart
                 data={data}
-                width={500}
-                height={220}
+                width={350}
+                height={200}
                 yAxisLabel=""
                 chartConfig={chartConfig}
               />
